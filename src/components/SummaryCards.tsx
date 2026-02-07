@@ -10,12 +10,15 @@ export function SummaryCards({ transactions }: SummaryCardsProps) {
     return curr.type === 'income' ? acc + curr.amount : acc - curr.amount;
   }, 0);
 
-  const currentMonth = new Date().getMonth();
-  const currentYear = new Date().getFullYear();
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
 
   const monthlyExpenses = transactions
     .filter(t => {
-      const date = new Date(t.date);
+      // Parse YYYY-MM-DD string as local time to avoid timezone shifts
+      const [year, month, day] = t.date.split('-').map(Number);
+      const date = new Date(year, month - 1, day);
       return t.type === 'expense' && date.getMonth() === currentMonth && date.getFullYear() === currentYear;
     })
     .reduce((acc, curr) => acc + curr.amount, 0);
